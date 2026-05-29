@@ -27,9 +27,9 @@ export const DashboardLayout = () => {
               variant="secondary"
             >
               {isDark ? (
-                <Sun className="h-[15px] w-[15px]" strokeWidth={3} />
+                <Sun className="h-[30px] w-[30px]" strokeWidth={3} />
               ) : (
-                <Moon className="h-[15px] w-[15px]" strokeWidth={3} />
+                <Moon className="h-[30px] w-[30px]" strokeWidth={3} />
               )}
             </Button>
             <Button onClick={logout} variant="secondary">
