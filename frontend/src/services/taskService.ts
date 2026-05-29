@@ -14,23 +14,47 @@ export const taskService = {
       ...query,
       stage: query.stage === "All" ? undefined : query.stage
     };
-    const { data } = await api.get<TaskListResponse>("/tasks", { params });
+
+    const { data } = await api.get<TaskListResponse>(
+      "/api/tasks",
+      { params }
+    );
+
     return data;
   },
+
   async create(payload: TaskPayload) {
-    const { data } = await api.post<Task>("/tasks", payload);
+    const { data } = await api.post<Task>(
+      "/api/tasks",
+      payload
+    );
+
     return data;
   },
+
   async update(id: string, payload: TaskPayload) {
-    const { data } = await api.put<Task>(`/tasks/${id}`, payload);
+    const { data } = await api.put<Task>(
+      `/api/tasks/${id}`,
+      payload
+    );
+
     return data;
   },
+
   async remove(id: string) {
-    const { data } = await api.delete<{ message: string }>(`/tasks/${id}`);
+    const { data } = await api.delete<{ message: string }>(
+      `/api/tasks/${id}`
+    );
+
     return data;
   },
+
   async updateStage(id: string, stage: Stage) {
-    const { data } = await api.patch<Task>(`/tasks/${id}/stage`, { stage });
+    const { data } = await api.patch<Task>(
+      `/api/tasks/${id}/stage`,
+      { stage }
+    );
+
     return data;
   }
 };
