@@ -133,7 +133,7 @@ export const DashboardPage = () => {
 
   try {
     await taskService.updateStage(task._id, stage);
-    toast.success(`Moved to ${stage}`);
+    
 
     // Don't reload tasks here
   } catch (moveError) {
