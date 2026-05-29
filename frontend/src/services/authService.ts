@@ -14,15 +14,25 @@ export interface LoginInput {
 
 export const authService = {
   async register(payload: RegisterInput) {
-    const { data } = await api.post<AuthResponse>("/auth/register", payload);
+    const { data } = await api.post<AuthResponse>(
+      "/api/auth/register",
+      payload
+    );
     return data;
   },
+
   async login(payload: LoginInput) {
-    const { data } = await api.post<AuthResponse>("/auth/login", payload);
+    const { data } = await api.post<AuthResponse>(
+      "/api/auth/login",
+      payload
+    );
     return data;
   },
+
   async profile() {
-    const { data } = await api.get<User>("/auth/profile");
+    const { data } = await api.get<User>(
+      "/api/auth/profile"
+    );
     return data;
   }
-};
+}
