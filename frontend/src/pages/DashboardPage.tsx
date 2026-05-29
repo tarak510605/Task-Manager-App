@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { Button } from "../components/common/Button";
 import { EmptyState } from "../components/common/EmptyState";
-import { Input } from "../components/common/Input";
 import { Spinner } from "../components/common/Spinner";
 import { TaskColumn } from "../components/tasks/TaskColumn";
 import { TaskForm } from "../components/tasks/TaskForm";
@@ -29,29 +28,45 @@ export const DashboardPage = () => {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const fetchTasks = async () => {
-    try {
+  const fetchTasks = async (isInitialLoad = false) => {
+  try {
+    if (isInitialLoad) {
       setLoading(true);
-      setError("");
-      const data = await taskService.list({ search, stage: stageFilter, page, limit: 30 });
-      setTasks(data.tasks);
-      setPages(data.pagination.pages);
-      setTotal(data.pagination.total);
-    } catch (fetchError) {
-      setError(getErrorMessage(fetchError, "Unable to load tasks"));
-    } finally {
+    }
+
+    setError("");
+
+    const data = await taskService.list({
+      search,
+      stage: stageFilter,
+      page,
+      limit: 30
+    });
+
+    setTasks(data.tasks);
+    setPages(data.pagination.pages);
+    setTotal(data.pagination.total);
+  } catch (fetchError) {
+    setError(getErrorMessage(fetchError, "Unable to load tasks"));
+  } finally {
+    if (isInitialLoad) {
       setLoading(false);
     }
-  };
-
+  }
+};
   useEffect(() => {
-    const handle = window.setTimeout(fetchTasks, 250);
+  const handle = window.setTimeout(() => {
+    fetchTasks(true);
+  }, 250);
+
     return () => window.clearTimeout(handle);
   }, [page, search, stageFilter]);
 
   useEffect(() => {
     setPage(1);
   }, [search, stageFilter]);
+
+
 
   const tasksByStage = useMemo(
     () =>
@@ -103,20 +118,29 @@ export const DashboardPage = () => {
   };
 
   const moveTask = async (task: Task, stage: Stage) => {
-    if (task.stage === stage) return;
+  if (task.stage === stage) return;
 
-    const previousTasks = tasks;
-    setTasks((current) => current.map((item) => (item._id === task._id ? { ...item, stage } : item)));
+  const previousTasks = tasks;
 
-    try {
-      await taskService.updateStage(task._id, stage);
-      toast.success(`Moved to ${stage}`);
-      await fetchTasks();
-    } catch (moveError) {
-      setTasks(previousTasks);
-      toast.error(getErrorMessage(moveError, "Unable to move task"));
-    }
-  };
+  // Update UI immediately
+  setTasks((current) =>
+    current.map((item) =>
+      item._id === task._id
+        ? { ...item, stage }
+        : item
+    )
+  );
+
+  try {
+    await taskService.updateStage(task._id, stage);
+    toast.success(`Moved to ${stage}`);
+
+    // Don't reload tasks here
+  } catch (moveError) {
+    setTasks(previousTasks);
+    toast.error(getErrorMessage(moveError, "Unable to move task"));
+  }
+};
 
   const handleDragEnd = (result: DropResult) => {
     const task = tasks.find((item) => item._id === result.draggableId);
